@@ -1,6 +1,9 @@
 import 'styles/style.scss' 
 import GameOfLife from 'GameOfLife'
+import pattern from 'patterns/adder.gif'
 
-const game = new GameOfLife('grid', 100, 100)
-
-// game.tick()
+const p = new Image()
+p.onload = () => {
+    const game = new GameOfLife('grid', p.width, p.height, p)
+}
+p.src = pattern 

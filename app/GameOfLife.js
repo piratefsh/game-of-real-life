@@ -1,5 +1,5 @@
 export default class GameOfLife {
-    constructor(canvasId, width, height){
+    constructor(canvasId, width=100, height=100, pattern){
         this.size = {
             x: width,
             y: height
@@ -20,12 +20,51 @@ export default class GameOfLife {
         this.context = canvas.getContext('2d')
         
         // frame per second of drawing
-        this.fps = 2
+        this.fps = 12
 
-        this.random()
+        // populate board
+
+        // load pattern if passed in
+        if (pattern){
+            this.load(pattern)
+        }
+        // else load random
+        else{
+            this.random()
+            
+        }
+
         this.tick()
+
     }
 
+    load(pat){
+        // clear canvas and draw pattern
+        this.context.clearRect(0, 0, this.size.x, this.size.y)
+        this.context.drawImage(pat, 0, 0)
+
+        // get cell data from pixels
+        const imageData = this.context.getImageData(0, 0, this.size.x, this.size.y)
+        const data = imageData.data 
+        console.log(data)
+        this.grid = this.grid.map((row, x) => {
+            return row.map((cell, y) => {
+                 const i = (x * this.size.x + y) * 4
+                 return data[i+3] > 0 ? 1 : 0
+            })
+        })
+
+        this.draw()
+    }
+
+    checkers(){
+        // populate grid randomly
+        this.grid = this.grid.map((row, x) => {
+            return row.map((cell, y) => {
+                return (x + y) % 2 == 1
+            })
+        })
+    }
     random(){
         // populate grid randomly
         this.grid = this.grid.map((row) => {
@@ -49,39 +88,32 @@ export default class GameOfLife {
     }
 
     update(){
-        // for(let x = 0; x < this.grid.length; x++){
-        //     for(let y = 0; y < this.grid[x].length; y++){
-        //         // get num of neighbours
-
-        //         // if live cell
-        //             // if has < 2 live neighbours, die
-
-        //             // if has 2-3 live neighbours, live
-
-        //             // if > 3 live neighbours, die
-
-        //         // if dead cell
-        //             // if has 3 live neighbours, becomes live
-        //     }
-        // }
         const res = this.grid.map((row, x) => {
             return row.map((cell, y) => {
                 const n = this.neighbours(x, y) 
+                // if live cell
                 if (cell){
+                    // if has < 2 live neighbours, die
                     if (n < 2) return 0
-                    if (n == 2 || n == 3) return 1
-                    return 0
+
+                    // if has 2-3 live neighbours, live
+                    else if (n == 2 || n == 3) return 1
+
+                    // if > 3 live neighbours, die
+                    else if (n > 3) return 0
 
                 }
+                // if dead cell
                 else {
-                    if (n > 3) return 1
+                    // if has 3 live neighbours, becomes live
+                    if (n == 3) return 1
+
+                    // else, remain dead
                     return 0
                 }
             })
         })
-
         this.grid = res
-
     }
 
     neighbours(x, y){
@@ -111,7 +143,7 @@ export default class GameOfLife {
             neighbours = this.grid[x-1][y+1] ? neighbours+1 : neighbours
         }
         if (bottom && left){
-            neighbours = this.grid[x+1][y+1] ? neighbours+1 : neighbours
+            neighbours = this.grid[x+1][y-1] ? neighbours+1 : neighbours
         }
         if (bottom && right){
             neighbours = this.grid[x+1][y+1] ? neighbours+1 : neighbours

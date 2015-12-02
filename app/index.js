@@ -1,9 +1,13 @@
 import 'styles/style.scss' 
 import GameOfLife from 'GameOfLife'
-import pattern from 'patterns/adder.gif'
+import adder from 'patterns/adder.gif'
+import puftrn from 'patterns/puftrn.gif'
+import p136 from 'patterns/p136.gif'
+
+let game
 
 const p = new Image()
+p.src = p136 
 p.onload = () => {
-    const game = new GameOfLife('grid', p.width, p.height, p)
+    game = new GameOfLife('grid', p.width, p.height, p)
 }
-p.src = pattern 

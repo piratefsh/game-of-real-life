@@ -1,9 +1,12 @@
 export default class GameOfLife {
     constructor(canvasId, width=100, height=100, pattern){
+        // canvas size
         this.size = {
             x: width,
             y: height
         }
+        // frame per second of drawing
+        this.fps = 12
 
         // create empty grid
         const rows = new Array(height); rows.fill(1)
@@ -19,11 +22,7 @@ export default class GameOfLife {
 
         this.context = canvas.getContext('2d')
         
-        // frame per second of drawing
-        this.fps = 12
-
         // populate board
-
         // load pattern if passed in
         if (pattern){
             this.load(pattern)
@@ -34,6 +33,7 @@ export default class GameOfLife {
             
         }
 
+        // start
         this.tick()
 
     }
@@ -46,7 +46,8 @@ export default class GameOfLife {
         // get cell data from pixels
         const imageData = this.context.getImageData(0, 0, this.size.x, this.size.y)
         const data = imageData.data 
-        console.log(data)
+
+        // create grid out of pattern
         this.grid = this.grid.map((row, x) => {
             return row.map((cell, y) => {
                  const i = (x * this.size.x + y) * 4
@@ -117,12 +118,14 @@ export default class GameOfLife {
     }
 
     neighbours(x, y){
+        // get number of live neighbours for cell
+
         let neighbours = 0
-        // get neighbours of cell
-        const top = x > 0
-        const bottom = x < this.grid.length - 1
-        const left = y > 0
-        const right = y < this.grid[x].length - 1
+        
+        const top       = x > 0
+        const bottom    = x < this.grid.length - 1
+        const left      = y > 0
+        const right     = y < this.grid[x].length - 1
 
         if(top){
             neighbours = this.grid[x-1][y] ? neighbours+1 : neighbours
@@ -148,6 +151,7 @@ export default class GameOfLife {
         if (bottom && right){
             neighbours = this.grid[x+1][y+1] ? neighbours+1 : neighbours
         }
+
         return neighbours
     }
 
@@ -155,7 +159,6 @@ export default class GameOfLife {
         const imageData = this.context.createImageData(this.size.x, this.size.y)
         const data = imageData.data
 
-        //new Uint8ClampedArray(this.size.x * this.size.y * 4)
         this.grid.forEach((row, x) => {
             row.forEach((cell, y) => {
                 const color = cell != 0 ? 0 : 255
@@ -167,7 +170,6 @@ export default class GameOfLife {
             })
         })
 
-        // const imageData = new ImageData(data, this.size.x, this.size.y)
         this.context.putImageData(imageData, 0, 0)
     }
 }

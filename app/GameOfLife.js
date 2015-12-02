@@ -58,14 +58,6 @@ export default class GameOfLife {
         this.draw()
     }
 
-    checkers(){
-        // populate grid randomly
-        this.grid = this.grid.map((row, x) => {
-            return row.map((cell, y) => {
-                return (x + y) % 2 == 1
-            })
-        })
-    }
     random(){
         // populate grid randomly
         this.grid = this.grid.map((row) => {
@@ -73,7 +65,6 @@ export default class GameOfLife {
                 return Math.random() > 0.75 ? 1 : 0
             })
         })
-
     }
 
     tick(){
@@ -89,7 +80,7 @@ export default class GameOfLife {
     }
 
     update(){
-        const res = this.grid.map((row, x) => {
+        this.grid = this.grid.map((row, x) => {
             return row.map((cell, y) => {
                 const n = this.neighbours(x, y) 
                 // if live cell
@@ -114,7 +105,6 @@ export default class GameOfLife {
                 }
             })
         })
-        this.grid = res
     }
 
     neighbours(x, y){
@@ -155,18 +145,19 @@ export default class GameOfLife {
         return neighbours
     }
 
+
     draw(){
         const imageData = this.context.createImageData(this.size.x, this.size.y)
         const data = imageData.data
 
         this.grid.forEach((row, x) => {
             row.forEach((cell, y) => {
-                const color = cell != 0 ? 0 : 255
+                const opacity = cell != 0 ? 255 : 0
                 const i = (x * this.size.x + y) * 4
-                data[i] = color
-                data[i + 1] = color
-                data[i + 2] = color
-                data[i + 3] = 255
+                data[i] = 0
+                data[i + 1] = 0
+                data[i + 2] = 255
+                data[i + 3] = opacity
             })
         })
 

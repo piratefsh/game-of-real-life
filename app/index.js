@@ -1,3 +1,6 @@
-import test from './test'
 import 'styles/style.scss' 
-test()
+import GameOfLife from 'GameOfLife'
+
+const game = new GameOfLife('grid', 100, 100)
+
+// game.tick()

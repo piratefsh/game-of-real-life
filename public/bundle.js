@@ -55,13 +55,77 @@
 
 	var _interopRequireDefault = __webpack_require__(2)['default'];
 
-	var _test = __webpack_require__(3);
+	__webpack_require__(3);
 
-	var _test2 = _interopRequireDefault(_test);
+	var _GameOfLife = __webpack_require__(7);
 
-	__webpack_require__(4);
+	var _GameOfLife2 = _interopRequireDefault(_GameOfLife);
 
-	(0, _test2['default'])();
+	var _patternsAdderGif = __webpack_require__(13);
+
+	var _patternsAdderGif2 = _interopRequireDefault(_patternsAdderGif);
+
+	var _patternsPuftrnGif = __webpack_require__(14);
+
+	var _patternsPuftrnGif2 = _interopRequireDefault(_patternsPuftrnGif);
+
+	var _patternsP136Gif = __webpack_require__(15);
+
+	var _patternsP136Gif2 = _interopRequireDefault(_patternsP136Gif);
+
+	var _patternsOut2Png = __webpack_require__(16);
+
+	var _patternsOut2Png2 = _interopRequireDefault(_patternsOut2Png);
+
+	var _imagesOrigPng = __webpack_require__(17);
+
+	var _imagesOrigPng2 = _interopRequireDefault(_imagesOrigPng);
+
+	var game = undefined;
+
+	var p = new Image();
+	var orig = new Image();
+
+	p.src = _patternsOut2Png2['default'];
+	orig.src = _imagesOrigPng2['default'];
+
+	p.onload = function () {
+	    orig.onload = function () {
+	        var scale = parseInt(window.innerHeight * 1.0 / p.height);
+
+	        // display original image
+	        drawBg(orig, p.width * scale, p.height * scale);
+
+	        // create game from image
+	        game = new _GameOfLife2['default']('grid', p.width, p.height, p, scale, hideBg);
+
+	        // game = new GameOfLife('grid', p.width, p.height, p)
+
+	        // set start btn listener
+	        initStartBtn();
+	    };
+	};
+
+	function initStartBtn() {
+	    document.getElementById('btn-start').addEventListener('click', function () {
+	        setTimeout(function () {
+	            game.start();
+	        }, 1000);
+	    });
+	}
+
+	function hideBg() {
+	    var bgCanvas = document.getElementById('bg');
+	    bgCanvas.style.opacity = 0;
+	}
+
+	function drawBg(img, w, h) {
+	    var bgCanvas = document.getElementById('bg');
+	    var bgContext = bgCanvas.getContext('2d');
+	    bgCanvas.width = w;
+	    bgCanvas.height = h;
+	    bgContext.drawImage(img, 0, 0, w, h);
+	}
 
 /***/ },
 /* 2 */
@@ -81,273 +145,366 @@
 /* 3 */
 /***/ function(module, exports) {
 
-	"use strict";
+	// removed by extract-text-webpack-plugin
 
-	Object.defineProperty(exports, "__esModule", {
+/***/ },
+/* 4 */,
+/* 5 */,
+/* 6 */,
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = __webpack_require__(8)['default'];
+
+	var _classCallCheck = __webpack_require__(12)['default'];
+
+	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
-	exports["default"] = test;
 
-	function test() {
-	    var a = [1, 2, 3, 4, 5, 6];
-	    a.forEach(function (m) {
-	        return console.log(m);
-	    });
-	}
+	var GameOfLife = (function () {
+	    function GameOfLife(canvasId, width, height, pattern, scale, onStart) {
+	        if (width === undefined) width = 100;
+	        if (height === undefined) height = 100;
 
-	module.exports = exports["default"];
+	        _classCallCheck(this, GameOfLife);
 
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
+	        // canvas size
+	        this.size = {
+	            x: width,
+	            y: height
+	        };
 
-	// style-loader: Adds some css to the DOM by adding a <style> tag
+	        // starting pattern
+	        this.pattern = pattern;
 
-	// load the styles
-	var content = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(6)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
+	        // frame per second of drawing
+	        this.startFps = 5;
+	        this.fps = 15;
 
-/***/ },
-/* 5 */,
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
+	        // scale of grid
+	        this.scale = parseInt(scale);
 
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {},
-		memoize = function(fn) {
-			var memo;
-			return function () {
-				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-				return memo;
-			};
-		},
-		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-		}),
-		getHeadElement = memoize(function () {
-			return document.head || document.getElementsByTagName("head")[0];
-		}),
-		singletonElement = null,
-		singletonCounter = 0;
+	        // callbacks
+	        this.onStart = onStart;
 
-	module.exports = function(list, options) {
-		if(false) {
-			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-		}
+	        // color of live cel
+	        this.cellColor = 'rgba(255, 69, 0, 0.8)';
 
-		options = options || {};
-		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-		// tags it will allow on a page
-		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+	        // create empty grid
+	        var rows = new Array(height);rows.fill(1);
+	        this.grid = rows.map(function (row) {
+	            row = new Uint8Array(width);row.fill(1);
+	            return row;
+	        });
 
-		var styles = listToStyles(list);
-		addStylesToDom(styles, options);
+	        // size canvas and get context
+	        var canvas = document.getElementById(canvasId);
+	        canvas.width = '' + width;
+	        canvas.height = '' + height;
+	        canvas.style.opacity = 0;
 
-		return function update(newList) {
-			var mayRemove = [];
-			for(var i = 0; i < styles.length; i++) {
-				var item = styles[i];
-				var domStyle = stylesInDom[item.id];
-				domStyle.refs--;
-				mayRemove.push(domStyle);
-			}
-			if(newList) {
-				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles, options);
-			}
-			for(var i = 0; i < mayRemove.length; i++) {
-				var domStyle = mayRemove[i];
-				if(domStyle.refs === 0) {
-					for(var j = 0; j < domStyle.parts.length; j++)
-						domStyle.parts[j]();
-					delete stylesInDom[domStyle.id];
-				}
-			}
-		};
-	}
+	        this.context = canvas.getContext('2d');
+	    }
 
-	function addStylesToDom(styles, options) {
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			if(domStyle) {
-				domStyle.refs++;
-				for(var j = 0; j < domStyle.parts.length; j++) {
-					domStyle.parts[j](item.parts[j]);
-				}
-				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j], options));
-				}
-			} else {
-				var parts = [];
-				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j], options));
-				}
-				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-			}
-		}
-	}
+	    _createClass(GameOfLife, [{
+	        key: 'start',
+	        value: function start() {
+	            var _this = this;
 
-	function listToStyles(list) {
-		var styles = [];
-		var newStyles = {};
-		for(var i = 0; i < list.length; i++) {
-			var item = list[i];
-			var id = item[0];
-			var css = item[1];
-			var media = item[2];
-			var sourceMap = item[3];
-			var part = {css: css, media: media, sourceMap: sourceMap};
-			if(!newStyles[id])
-				styles.push(newStyles[id] = {id: id, parts: [part]});
-			else
-				newStyles[id].parts.push(part);
-		}
-		return styles;
-	}
+	            // populate board
+	            // load pattern if passed in
+	            if (this.pattern) {
+	                this.load(this.pattern);
+	            }
+	            // else load random
+	            else {
+	                    this.random();
+	                }
 
-	function createStyleElement() {
-		var styleElement = document.createElement("style");
-		var head = getHeadElement();
-		styleElement.type = "text/css";
-		head.appendChild(styleElement);
-		return styleElement;
-	}
+	            // show canvas
+	            this.context.canvas.style.opacity = 1;
 
-	function createLinkElement() {
-		var linkElement = document.createElement("link");
-		var head = getHeadElement();
-		linkElement.rel = "stylesheet";
-		head.appendChild(linkElement);
-		return linkElement;
-	}
+	            // callback
+	            setTimeout(function () {
+	                _this.onStart();
+	            }, 1000);
 
-	function addStyle(obj, options) {
-		var styleElement, update, remove;
+	            // start
+	            setTimeout(function () {
+	                _this.tick();
+	            }, 3000);
+	        }
+	    }, {
+	        key: 'load',
+	        value: function load(pat) {
+	            var _this2 = this;
 
-		if (options.singleton) {
-			var styleIndex = singletonCounter++;
-			styleElement = singletonElement || (singletonElement = createStyleElement());
-			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-		} else if(obj.sourceMap &&
-			typeof URL === "function" &&
-			typeof URL.createObjectURL === "function" &&
-			typeof URL.revokeObjectURL === "function" &&
-			typeof Blob === "function" &&
-			typeof btoa === "function") {
-			styleElement = createLinkElement();
-			update = updateLink.bind(null, styleElement);
-			remove = function() {
-				styleElement.parentNode.removeChild(styleElement);
-				if(styleElement.href)
-					URL.revokeObjectURL(styleElement.href);
-			};
-		} else {
-			styleElement = createStyleElement();
-			update = applyToTag.bind(null, styleElement);
-			remove = function() {
-				styleElement.parentNode.removeChild(styleElement);
-			};
-		}
+	            // clear canvas and draw pattern
+	            this.context.clearRect(0, 0, this.size.x, this.size.y);
+	            this.context.drawImage(pat, 0, 0);
 
-		update(obj);
+	            // get cell data from pixels
+	            var imageData = this.context.getImageData(0, 0, this.size.x, this.size.y);
+	            var data = imageData.data;
 
-		return function updateStyle(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-					return;
-				update(obj = newObj);
-			} else {
-				remove();
-			}
-		};
-	}
+	            // create grid out of pattern
+	            this.grid = this.grid.map(function (row, x) {
+	                return row.map(function (cell, y) {
+	                    var i = (x * _this2.size.x + y) * 4;
+	                    return data[i + 3] > 0 ? 1 : 0;
+	                });
+	            });
 
-	var replaceText = (function () {
-		var textStore = [];
+	            this.draw();
+	        }
+	    }, {
+	        key: 'checkers',
+	        value: function checkers() {
+	            // populate grid randomly
+	            this.grid = this.grid.map(function (row, x) {
+	                return row.map(function (cell, y) {
+	                    return (x + y) % 2 == 1;
+	                });
+	            });
 
-		return function (index, replacement) {
-			textStore[index] = replacement;
-			return textStore.filter(Boolean).join('\n');
-		};
+	            this.draw();
+	        }
+	    }, {
+	        key: 'random',
+	        value: function random() {
+	            // populate grid randomly
+	            this.grid = this.grid.map(function (row) {
+	                return row.map(function (cell) {
+	                    return Math.random() > 0.75 ? 1 : 0;
+	                });
+	            });
+	            this.draw();
+	        }
+	    }, {
+	        key: 'tick',
+	        value: function tick() {
+	            var _this3 = this;
+
+	            this.update();
+	            this.draw();
+
+	            var fps = this.startFps < this.fps ? this.startFps += 0.5 : this.fps;
+
+	            // set interval of draw frame
+	            setTimeout(function () {
+	                requestAnimationFrame(function () {
+	                    _this3.tick();
+	                });
+	            }, 1000 / fps);
+	        }
+	    }, {
+	        key: 'update',
+	        value: function update() {
+	            var _this4 = this;
+
+	            this.grid = this.grid.map(function (row, x) {
+	                return row.map(function (cell, y) {
+	                    var n = _this4.neighbours(x, y);
+	                    // if live cell
+	                    if (cell) {
+	                        // if has < 2 live neighbours, die
+	                        if (n < 2) return 0;
+
+	                        // if has 2-3 live neighbours, live
+	                        else if (n == 2 || n == 3) return 1;
+
+	                            // if > 3 live neighbours, die
+	                            else if (n > 3) return 0;
+	                    }
+	                    // if dead cell
+	                    else {
+	                            // if has 3 live neighbours, becomes live
+	                            if (n == 3) return 1;
+
+	                            // else, remain dead
+	                            return 0;
+	                        }
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'neighbours',
+	        value: function neighbours(x, y) {
+	            // get number of live neighbours for cell
+
+	            var neighbours = 0;
+
+	            var top = x > 0;
+	            var bottom = x < this.grid.length - 1;
+	            var left = y > 0;
+	            var right = y < this.grid[x].length - 1;
+
+	            if (top) {
+	                neighbours = this.grid[x - 1][y] ? neighbours + 1 : neighbours;
+	            }
+	            if (bottom) {
+	                neighbours = this.grid[x + 1][y] ? neighbours + 1 : neighbours;
+	            }
+	            if (left) {
+	                neighbours = this.grid[x][y - 1] ? neighbours + 1 : neighbours;
+	            }
+	            if (right) {
+	                neighbours = this.grid[x][y + 1] ? neighbours + 1 : neighbours;
+	            }
+	            if (top && left) {
+	                neighbours = this.grid[x - 1][y - 1] ? neighbours + 1 : neighbours;
+	            }
+	            if (top && right) {
+	                neighbours = this.grid[x - 1][y + 1] ? neighbours + 1 : neighbours;
+	            }
+	            if (bottom && left) {
+	                neighbours = this.grid[x + 1][y - 1] ? neighbours + 1 : neighbours;
+	            }
+	            if (bottom && right) {
+	                neighbours = this.grid[x + 1][y + 1] ? neighbours + 1 : neighbours;
+	            }
+
+	            return neighbours;
+	        }
+	    }, {
+	        key: 'scaleDraw',
+	        value: function scaleDraw(s) {
+	            var _this5 = this;
+
+	            this.context.canvas.width = this.size.x * s;
+	            this.context.canvas.height = this.size.y * s;
+	            this.context.scale(s, s);
+
+	            this.context.fillStyle = this.cellColor;
+	            this.grid.forEach(function (row, x) {
+	                row.forEach(function (cell, y) {
+	                    if (cell) {
+	                        _this5.context.fillRect(y, x, 1, 1);
+	                    }
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'draw',
+	        value: function draw() {
+	            this.scaleDraw(this.scale);
+	        }
+	    }]);
+
+	    return GameOfLife;
 	})();
 
-	function applyToSingletonTag(styleElement, index, remove, obj) {
-		var css = remove ? "" : obj.css;
+	exports['default'] = GameOfLife;
+	module.exports = exports['default'];
 
-		if (styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = replaceText(index, css);
-		} else {
-			var cssNode = document.createTextNode(css);
-			var childNodes = styleElement.childNodes;
-			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-			if (childNodes.length) {
-				styleElement.insertBefore(cssNode, childNodes[index]);
-			} else {
-				styleElement.appendChild(cssNode);
-			}
-		}
-	}
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
 
-	function applyToTag(styleElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-		var sourceMap = obj.sourceMap;
+	"use strict";
 
-		if(media) {
-			styleElement.setAttribute("media", media)
-		}
+	var _Object$defineProperty = __webpack_require__(9)["default"];
 
-		if(styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = css;
-		} else {
-			while(styleElement.firstChild) {
-				styleElement.removeChild(styleElement.firstChild);
-			}
-			styleElement.appendChild(document.createTextNode(css));
-		}
-	}
+	exports["default"] = (function () {
+	  function defineProperties(target, props) {
+	    for (var i = 0; i < props.length; i++) {
+	      var descriptor = props[i];
+	      descriptor.enumerable = descriptor.enumerable || false;
+	      descriptor.configurable = true;
+	      if ("value" in descriptor) descriptor.writable = true;
 
-	function updateLink(linkElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-		var sourceMap = obj.sourceMap;
+	      _Object$defineProperty(target, descriptor.key, descriptor);
+	    }
+	  }
 
-		if(sourceMap) {
-			// http://stackoverflow.com/a/26603875
-			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-		}
+	  return function (Constructor, protoProps, staticProps) {
+	    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	    if (staticProps) defineProperties(Constructor, staticProps);
+	    return Constructor;
+	  };
+	})();
 
-		var blob = new Blob([css], { type: "text/css" });
+	exports.__esModule = true;
 
-		var oldSrc = linkElement.href;
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
 
-		linkElement.href = URL.createObjectURL(blob);
+	module.exports = { "default": __webpack_require__(10), __esModule: true };
 
-		if(oldSrc)
-			URL.revokeObjectURL(oldSrc);
-	}
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
 
+	var $ = __webpack_require__(11);
+	module.exports = function defineProperty(it, key, desc){
+	  return $.setDesc(it, key, desc);
+	};
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	var $Object = Object;
+	module.exports = {
+	  create:     $Object.create,
+	  getProto:   $Object.getPrototypeOf,
+	  isEnum:     {}.propertyIsEnumerable,
+	  getDesc:    $Object.getOwnPropertyDescriptor,
+	  setDesc:    $Object.defineProperty,
+	  setDescs:   $Object.defineProperties,
+	  getKeys:    $Object.keys,
+	  getNames:   $Object.getOwnPropertyNames,
+	  getSymbols: $Object.getOwnPropertySymbols,
+	  each:       [].forEach
+	};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports["default"] = function (instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "e91d8db116424ceb31711c5d12e861c1.gif";
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "8c8fbba5691499811f065b0c4d2b76e8.gif";
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "003d01ac9b757997461d8fb54839ed0e.gif";
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "7825399dfb2360e5b419ff0de91c4c1a.png";
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "6ccb639e53f42c5f33515f8760e18d9c.png";
 
 /***/ }
 /******/ ]);

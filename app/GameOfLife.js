@@ -1,12 +1,18 @@
 export default class GameOfLife {
-    constructor(canvasId, width=100, height=100, pattern){
+    constructor(canvasId, width=100, height=100, pattern, scale, onStart){
         // canvas size
         this.size = {
             x: width,
             y: height
         }
         // frame per second of drawing
-        this.fps = 12
+        this.fps = 15
+
+        // scale of grid
+        this.scale = parseInt(scale)
+
+        // color of live cel
+        this.cellColor = 'rgba(255, 69, 0, 0.8)'
 
         // create empty grid
         const rows = new Array(height); rows.fill(1)
@@ -19,6 +25,7 @@ export default class GameOfLife {
         const canvas = document.getElementById(canvasId)
         canvas.width = `${width}`
         canvas.height = `${height}`
+        canvas.style.opacity = 1
 
         this.context = canvas.getContext('2d')
         
@@ -33,8 +40,15 @@ export default class GameOfLife {
             
         }
 
+        // callback
+        setTimeout(()=>{
+            onStart()
+        }, 3000)
+        
         // start
-        this.tick()
+        setTimeout(()=>{
+            this.tick()
+        }, 5000)
 
     }
 
@@ -58,6 +72,17 @@ export default class GameOfLife {
         this.draw()
     }
 
+    checkers(){
+        // populate grid randomly
+        this.grid = this.grid.map((row, x) => {
+            return row.map((cell, y) => {
+                return (x + y) % 2 == 1
+            })
+        })
+
+        this.draw()
+    }
+
     random(){
         // populate grid randomly
         this.grid = this.grid.map((row) => {
@@ -65,6 +90,7 @@ export default class GameOfLife {
                 return Math.random() > 0.75 ? 1 : 0
             })
         })
+        this.draw()
     }
 
     tick(){
@@ -146,9 +172,28 @@ export default class GameOfLife {
     }
 
 
+    scaleDraw(s, data){
+        this.context.canvas.width = this.size.x * s
+        this.context.canvas.height = this.size.y * s
+        this.context.scale(s, s)
+
+        this.context.fillStyle = this.cellColor
+        this.grid.forEach((row, x) => {
+            row.forEach((cell, y) => {
+                if (cell){
+                    this.context.fillRect(y, x, 1, 1)
+                }
+            })
+        })
+    }
+
     draw(){
+
         const imageData = this.context.createImageData(this.size.x, this.size.y)
         const data = imageData.data
+
+        this.scaleDraw(this.scale, data)
+        return 
 
         this.grid.forEach((row, x) => {
             row.forEach((cell, y) => {

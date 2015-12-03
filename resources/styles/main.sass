@@ -1,5 +1,22 @@
 body
     height: 100vh
-
+    position: relative
 canvas
-    min-height: 200px
+    position: absolute
+    left: 50%
+    top: 50%
+    transform: translate(-50%, -50%)
+    z-index: 3
+    opacity: 0
+    transition: opacity 1s
+#bg 
+    opacity: 1
+    z-index: 1
+    transition: opacity 2s
+
+.shower-curtain
+    background-color: rgba(white, 0.2)
+    width: 100vw
+    height: 100vh
+    position: relative
+    z-index: 2

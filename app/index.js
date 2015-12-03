@@ -16,10 +16,26 @@ orig.src = ori
 p.onload = () => {
     orig.onload = () => {
         const scale = parseInt(window.innerHeight*1.0 / p.height)
-        game = new GameOfLife('grid', p.width, p.height, p, scale, hideBg)
-        // game = new GameOfLife('grid', p.width, p.height, p)
+        
+        // display original image
         drawBg(orig, p.width*scale, p.height*scale)
+        
+        // create game from image
+        game = new GameOfLife('grid', p.width, p.height, p, scale, hideBg)
+
+        // game = new GameOfLife('grid', p.width, p.height, p)
+
+        // set start btn listener
+        createStartBtn()
     }
+}
+
+function createStartBtn(){
+    document.getElementById('btn-start').addEventListener('click', ()=>{
+        setTimeout(()=>{
+            game.start()
+        }, 1000)
+    })
 }
 
 function hideBg(){

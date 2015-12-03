@@ -5,11 +5,19 @@ export default class GameOfLife {
             x: width,
             y: height
         }
+
+        // starting pattern
+        this.pattern = pattern 
+
         // frame per second of drawing
+        this.startFps = 5
         this.fps = 15
 
         // scale of grid
         this.scale = parseInt(scale)
+
+        // callbacks
+        this.onStart = onStart
 
         // color of live cel
         this.cellColor = 'rgba(255, 69, 0, 0.8)'
@@ -25,14 +33,16 @@ export default class GameOfLife {
         const canvas = document.getElementById(canvasId)
         canvas.width = `${width}`
         canvas.height = `${height}`
-        canvas.style.opacity = 1
+        canvas.style.opacity = 0
 
         this.context = canvas.getContext('2d')
-        
+    }
+
+    start(){
         // populate board
         // load pattern if passed in
-        if (pattern){
-            this.load(pattern)
+        if (this.pattern){
+            this.load(this.pattern)
         }
         // else load random
         else{
@@ -40,15 +50,18 @@ export default class GameOfLife {
             
         }
 
+        // show canvas
+        this.context.canvas.style.opacity = 1
+
         // callback
         setTimeout(()=>{
-            onStart()
-        }, 3000)
+            this.onStart()
+        }, 1000)
         
         // start
         setTimeout(()=>{
             this.tick()
-        }, 5000)
+        }, 3000)
 
     }
 
@@ -97,12 +110,14 @@ export default class GameOfLife {
         this.update()
         this.draw()
 
+        const fps = this.startFps < this.fps ? this.startFps++ : this.fps
+
         // set interval of draw frame
         setTimeout(() => {
             requestAnimationFrame(() => {
                 this.tick()
             })
-        }, 1000 / this.fps)
+        }, 1000 / fps)
     }
 
     update(){

@@ -1,6 +1,14 @@
+@import url(https://fonts.googleapis.com/css?family=VT323)
+
+$font: VT323
+$color: orangered
+$space: 20px
+
 body
     height: 100vh
     position: relative
+    font-family:  VT323, monospace
+
 canvas
     position: absolute
     left: 50%
@@ -20,3 +28,14 @@ canvas
     height: 100vh
     position: relative
     z-index: 2
+
+.btn 
+    color: $color
+    background-color: rgba(white, 0.5)
+    border: 2px solid $color 
+    padding: $space/3 $space/2
+    font-size: 1.2em
+    position: fixed
+    bottom: $space 
+    right: $space
+    z-index: 9

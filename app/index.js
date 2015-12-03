@@ -26,11 +26,11 @@ p.onload = () => {
         // game = new GameOfLife('grid', p.width, p.height, p)
 
         // set start btn listener
-        createStartBtn()
+        initStartBtn()
     }
 }
 
-function createStartBtn(){
+function initStartBtn(){
     document.getElementById('btn-start').addEventListener('click', ()=>{
         setTimeout(()=>{
             game.start()

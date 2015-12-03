@@ -1,5 +1,5 @@
-# Webpack Starter
-Simple directory and config setup for a Webpack project with front-end web only. 
+# Game of real life
+Given a bunch of dots, use it as a starter for GOL
 
 ## Development 
 ### Install

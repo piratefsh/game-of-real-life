@@ -110,7 +110,7 @@ export default class GameOfLife {
         this.update()
         this.draw()
 
-        const fps = this.startFps < this.fps ? this.startFps++ : this.fps
+        const fps = this.startFps < this.fps ? this.startFps+=0.5 : this.fps
 
         // set interval of draw frame
         setTimeout(() => {
@@ -187,7 +187,7 @@ export default class GameOfLife {
     }
 
 
-    scaleDraw(s, data){
+    scaleDraw(s){
         this.context.canvas.width = this.size.x * s
         this.context.canvas.height = this.size.y * s
         this.context.scale(s, s)
@@ -203,24 +203,6 @@ export default class GameOfLife {
     }
 
     draw(){
-
-        const imageData = this.context.createImageData(this.size.x, this.size.y)
-        const data = imageData.data
-
-        this.scaleDraw(this.scale, data)
-        return 
-
-        this.grid.forEach((row, x) => {
-            row.forEach((cell, y) => {
-                const opacity = cell != 0 ? 255 : 0
-                const i = (x * this.size.x + y) * 4
-                data[i] = 0
-                data[i + 1] = 0
-                data[i + 2] = 255
-                data[i + 3] = opacity
-            })
-        })
-
-        this.context.putImageData(imageData, 0, 0)
+        this.scaleDraw(this.scale)
     }
 }
